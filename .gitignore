@@ -1,0 +1,8 @@
+lib
+*.exe
+*.dcu
+*.res
+*.dproj
+*.dproj.local
+*.lps
+*.ppm

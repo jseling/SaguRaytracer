@@ -1,0 +1,82 @@
+{
+	"materials": [
+		{
+			"id": "ivory",
+			"diffuse": [0.4, 0.4, 0.3],
+			"albedo": [0.6, 0.3, 0.1, 0.0],			
+			"specularExp": 50,
+			"refractiveIndex": 1
+		},
+		{
+			"id": "red_rubber",
+			"diffuse": [0.3, 0.1, 0.1],
+			"albedo": [0.9, 0.1, 0.0, 0.0],			
+			"specularExp": 10,
+			"refractiveIndex": 1
+		},		
+		{
+			"id": "mirror",
+			"diffuse": [1, 1, 1],
+			"albedo": [0.0, 10.0, 0.8, 0.0],			
+			"specularExp": 1425,
+			"refractiveIndex": 1
+		},		
+		{
+			"id": "glass",
+			"diffuse": [0.6, 0.7, 0.8],
+			"albedo": [0.0, 0.5, 0.1, 0.8],			
+			"specularExp": 125,
+			"refractiveIndex": 1.5
+		}
+	],
+	"objects":[
+		{
+			"object": "sphere",
+			"position": [-3, 0, -16],
+			"radius": 2,
+			"materialId": "ivory"
+		},
+		{
+			"object": "sphere",
+			"position": [-1.0, -1.5, -12],
+			"radius": 2,
+			"materialId": "glass"
+		},		
+		{
+			"object": "sphere",
+			"position": [1.5, -0.5, -18],
+			"radius": 3,
+			"materialId": "red_rubber"
+		},	
+		{
+			"object": "sphere",
+			"position": [7, 5, -18],
+			"radius": 4,
+			"materialId": "mirror"
+		},		
+		
+		{
+			"object": "light",
+			"position": [-20, 20, 20],
+			"intensity": 1.5
+		},
+		{
+			"object": "light",
+			"position": [30, 50, -25],
+			"intensity": 1.8
+		},			
+		{
+			"object": "light",
+			"position": [30, 20,  30],
+			"intensity": 1.7
+		}			
+	],
+	"camera": {
+			"position": [0, 0, 0],
+			"direction": [0, 0, -1],
+			"fov": 1.57,
+			"width": 640,
+			"height": 480,
+			"backgroundColor": [0.2, 0.7, 0.8]
+	}	
+}
