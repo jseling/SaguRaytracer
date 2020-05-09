@@ -1,8 +1,13 @@
 lib
+dcu
+backup
 *.exe
 *.dcu
 *.res
-*.dproj
 *.dproj.local
 *.lps
 *.ppm
+*.identcache
+*.drc
+*.map
+*.pas.~*

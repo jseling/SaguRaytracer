@@ -6,7 +6,9 @@ uses
   uVectorTypes,
   uSceneElements,
   uViewer,
-  uScene;
+  uScene,
+  uSceneElementLists,
+  uBaseList;
 
 type
   TRaytracer = class

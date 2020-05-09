@@ -31,6 +31,7 @@ begin
   //2 - erros de json
   //3 - erros de objetos sem material
   //4 - iterar arrays é mais rapido que TLists
+  //5 - usar um profiler para medir desempenho
 
   AScene := TSceneLoader.Build('scene.json');
   try
