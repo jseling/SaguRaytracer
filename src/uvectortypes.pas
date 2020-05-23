@@ -24,14 +24,16 @@ type
     //this is fastest than a formal constructor
     function Create(_AX, _AY, _AZ: Single): PVector3f; inline;
 
-    function Add(_AVector: TVector3f): PVector3f; inline;
-    function Subtract(_AVector: TVector3f): PVector3f; inline;
+    function Add(_AVector: PVector3f): PVector3f; inline;
+    function Subtract(_AVector: PVector3f): PVector3f; inline;
     function Scale(_AFactor: Single): PVector3f; inline;
-    function DotProduct(_AVector: TVector3f): Single; inline;
+    function DotProduct(_AVector: PVector3f): Single; inline;
     function Magnitude(): Single; inline;
     function Normalize(): PVector3f; inline;
-    function Reflect(_ANormal: TVector3f): PVector3f; inline;
-    function Refract(_AN: TVector3f; eta_t: Single; eta_i: Single = 1): PVector3f; inline;
+    function Reflect(_ANormal: PVector3f): PVector3f; inline;
+    function Refract(_AN: PVector3f; eta_t: Single; eta_i: Single = 1): PVector3f; inline;
+
+    function Clone(): PVector3f; inline;
   end;
 
   TVector4f = record
@@ -63,10 +65,10 @@ type
     B: Byte;
 
     //expect a vector with RGB values within 0..1 interval.
-    procedure SetFromVector3f(const _AVectorColor: TVector3f);
+    procedure SetFromVector3f(const _AVectorColor:PVector3f);
   end;
 
-  TArrayVector3f = array of TVector3f;
+  TArrayVector3f = array of PVector3f;
   TArraySingle = array of Single;
 
 implementation
@@ -94,7 +96,7 @@ end;
 
 { TiColor }
 
-procedure TByteColor.SetFromVector3f(const _AVectorColor:TVector3f);
+procedure TByteColor.SetFromVector3f(const _AVectorColor:PVector3f);
 var
   AR, AG, AB: Integer;
 
@@ -119,11 +121,24 @@ end;
 
 { TVector3f }
 
-function TVector3f.Add(_AVector: TVector3f): PVector3f;
+function TVector3f.Add(_AVector: PVector3f): PVector3f;
 begin
-  Result.Create(self.X + _AVector.X,
-               self.Y + _AVector.Y,
-               self.Z + _AVector.Z);
+  X := X + _AVector.X;
+  Y := Y + _AVector.Y;
+  Z := Z + _AVector.Z;
+
+  Result := @Self;
+end;
+
+function TVector3f.Clone: PVector3f;
+var
+  AClone: TVector3f;
+begin
+  AClone.X := X;
+  AClone.Y := Y;
+  AClone.Z := Z;
+
+  Result := @AClone;
 end;
 
 function TVector3f.Create(_AX, _AY, _AZ: Single): PVector3f;
@@ -135,7 +150,7 @@ begin
   Result := @Self;
 end;
 
-function TVector3f.DotProduct(_AVector: TVector3f): Single;
+function TVector3f.DotProduct(_AVector: PVector3f): Single;
 begin
   Result := X * _AVector.X +
             Y * _AVector.Y +
@@ -154,23 +169,28 @@ var
   AMag: Single;
 begin
   AMag := Self.Magnitude();
-  Result.Create(X / AMag,
-               Y / AMag,
-               Z / AMag);
+
+  X := X / AMag;
+  Y := Y / AMag;
+  Z := Z / AMag;
+
+  Result := @Self;
 end;
 
-function TVector3f.Reflect(_ANormal: TVector3f): PVector3f;
+function TVector3f.Reflect(_ANormal: PVector3f): PVector3f;
 var
   AIDotN: Single;
-  ANScale2: TVector3f;
+  ANScale2: PVector3f;
+  AReflection: PVector3f;
 begin
-  ANScale2 := _ANormal.Scale(2);
+  ANScale2 := _ANormal.Clone.Scale(2);
   AIDotN := Self.DotProduct(_ANormal);
+  AReflection := Self.Clone().Subtract(ANScale2.Scale(AIDotN));
 
-  Result := Self.Subtract(ANScale2.Scale(AIDotN));
+  Result := AReflection;
 end;
 
-function TVector3f.Refract(_AN: TVector3f; eta_t: Single; eta_i: Single = 1): PVector3f;
+function TVector3f.Refract(_AN: PVector3f; eta_t: Single; eta_i: Single = 1): PVector3f;
 var
   cosi: Single;
   eta: Single;
@@ -195,16 +215,20 @@ end;
 
 function TVector3f.Scale(_AFactor: Single): PVector3f;
 begin
-  Result.Create(X * _AFactor,
-               Y * _AFactor,
-               Z * _AFactor);
+  X := X * _AFactor;
+  Y := Y * _AFactor;
+  Z := Z * _AFactor;
+
+  Result := @Self;
 end;
 
-function TVector3f.Subtract(_AVector: TVector3f): PVector3f;
+function TVector3f.Subtract(_AVector: PVector3f): PVector3f;
 begin
-  Result.Create(X - _AVector.X,
-               Y - _AVector.Y,
-               Z - _AVector.Z);
+  X := X - _AVector.X;
+  Y := Y - _AVector.Y;
+  Z := Z - _AVector.Z;
+
+  Result := @Self;
 end;
 
 { TVector4f }

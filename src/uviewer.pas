@@ -20,8 +20,8 @@ type
     property ZBuffer: TArraySingle read FZBuffer;
 
     constructor Create(_ACamera: TCamera);
-    procedure SetPixel(x, y: Integer; color: TVector3f);
-    function GetPixel(x, y: Integer): TVector3f;
+    procedure SetPixel(x, y: Integer; color: PVector3f);
+    function GetPixel(x, y: Integer): PVector3f;
 
     function GetZValue(x, y: Integer): Single;
     procedure SetZValue(x, y: Integer; _AValue: Single);
@@ -47,7 +47,7 @@ begin
     FZBuffer[i] := s;
 end;
 
-function TViewer.GetPixel(x, y: Integer): TVector3f;
+function TViewer.GetPixel(x, y: Integer): PVector3f;
 begin
   Result := FFrameBuffer[x + y * FWidth];
 end;
@@ -57,7 +57,7 @@ begin
   Result := FZBuffer[x + y * FWidth];
 end;
 
-procedure TViewer.SetPixel(x, y: Integer; color: TVector3f);
+procedure TViewer.SetPixel(x, y: Integer; color: PVector3f);
 begin
   FFrameBuffer[x + y * FWidth] := color;
 end;

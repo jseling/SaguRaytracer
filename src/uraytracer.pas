@@ -13,8 +13,12 @@ uses
 type
   TRaytracer = class
   private
-    class function CastRay(_AOrig, _ADir: TVector3f; _AScene: TScene; _ADepth: integer): TVector3f;
-    class function SceneIntersect(_AOrig, _ADir: TVector3f; _AScene: TScene; out hit: TVector3f; out n: TVector3f; out material: TMaterial): boolean;
+    class function CastRay(_AOrig, _ADir: PVector3f;
+  _AScene: TScene;
+  _ADepth: integer): PVector3f;
+    class function SceneIntersect(_AOrig, _ADir: PVector3f;
+  _AScene: TScene; out hit, n: PVector3f;
+  out material: TMaterial): boolean;
   public
     class procedure Render(_AViewer: TViewer; _AScene: TScene);
   end;
@@ -26,33 +30,33 @@ uses
 
 { TRaytracer }
 
-class function TRaytracer.CastRay(_AOrig, _ADir: TVector3f;
+class function TRaytracer.CastRay(_AOrig, _ADir: PVector3f;
   _AScene: TScene;
-  _ADepth: integer): TVector3f;
+  _ADepth: integer): PVector3f;
 var
-  point, N: TVector3f;
+  point, N: PVector3f;
   material: TMaterial;
   diffuse_light_intensity: Single;
   specular_light_intensity: Single;
   i: integer;
-  light_dir: TVector3f;
-  diffuse_color: Tvector3f;
-  specular_color: TVector3f;
+  light_dir: PVector3f;
+  diffuse_color: Pvector3f;
+  specular_color: PVector3f;
   light_distance: Single;
-  shadow_orig: TVector3f;
+  shadow_orig: PVector3f;
 
-  shadow_pt, shadow_N: TVector3f;
+  shadow_pt, shadow_N: PVector3f;
   tmpmaterial: TMaterial;
 
-  reflect_dir: TVector3f;
-  reflect_orig: TVector3f;
-  reflect_color: TVector3f;
+  reflect_dir: PVector3f;
+  reflect_orig: PVector3f;
+  reflect_color: PVector3f;
 
   ANewDepth: Integer;
 
-  refract_dir: TVector3f;
-  refract_orig: TVector3f;
-  refract_color: TVector3f;
+  refract_dir: PVector3f;
+  refract_orig: PVector3f;
+  refract_color: PVector3f;
 begin
   if (_ADepth > 4) or (not SceneIntersect(_AOrig, _ADir, _AScene, point, N, material)) then
   begin
@@ -117,9 +121,9 @@ var
   i: integer;
   x, y: Single;
   AFOV: Single;
-  Aorig: Tvector3f;
-  Adir: Tvector3f;
-  AColor: TVector3f;
+  Aorig: Pvector3f;
+  Adir: Pvector3f;
+  AColor: PVector3f;
 begin
   AFOV := _AScene.Camera.FOV;
   for j := 0 to _AViewer.Height - 1 do
@@ -139,8 +143,8 @@ begin
     end;
 end;
 
-class function TRaytracer.SceneIntersect(_AOrig, _ADir: TVector3f;
-  _AScene: TScene; out hit, n: TVector3f;
+class function TRaytracer.SceneIntersect(_AOrig, _ADir: PVector3f;
+  _AScene: TScene; out hit, n: PVector3f;
   out material: TMaterial): boolean;
 var
   ASphereDist: Single;
@@ -148,7 +152,7 @@ var
   i: integer;
   checkerboard_dist: Single;
   d: Single;
-  pt: TVector3f;
+  pt: PVector3f;
 begin
   ASphereDist := MaxInt;
 
