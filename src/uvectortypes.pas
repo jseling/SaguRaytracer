@@ -10,6 +10,8 @@ interface
 
 type
 
+
+  PVector3f = ^TVector3f;
   { TVector3f }
 
   //memory allocation at stack in this case is fastest than using class at heap
@@ -20,16 +22,16 @@ type
     Z: Single;
 
     //this is fastest than a formal constructor
-    procedure Create(_AX, _AY, _AZ: Single); inline;
+    function Create(_AX, _AY, _AZ: Single): PVector3f; inline;
 
-    function Add(_AVector: TVector3f): TVector3f; inline;
-    function Subtract(_AVector: TVector3f): TVector3f; inline;
-    function Scale(_AFactor: Single): TVector3f; inline;
+    function Add(_AVector: TVector3f): PVector3f; inline;
+    function Subtract(_AVector: TVector3f): PVector3f; inline;
+    function Scale(_AFactor: Single): PVector3f; inline;
     function DotProduct(_AVector: TVector3f): Single; inline;
     function Magnitude(): Single; inline;
-    function Normalize(): TVector3f; inline;
-    function Reflect(_ANormal: TVector3f): TVector3f; inline;
-    function Refract(_AN: TVector3f; eta_t: Single; eta_i: Single = 1): TVector3f; inline;
+    function Normalize(): PVector3f; inline;
+    function Reflect(_ANormal: TVector3f): PVector3f; inline;
+    function Refract(_AN: TVector3f; eta_t: Single; eta_i: Single = 1): PVector3f; inline;
   end;
 
   TVector4f = record
@@ -117,18 +119,20 @@ end;
 
 { TVector3f }
 
-function TVector3f.Add(_AVector: TVector3f): TVector3f;
+function TVector3f.Add(_AVector: TVector3f): PVector3f;
 begin
   Result.Create(self.X + _AVector.X,
                self.Y + _AVector.Y,
                self.Z + _AVector.Z);
 end;
 
-procedure TVector3f.Create(_AX, _AY, _AZ: Single);
+function TVector3f.Create(_AX, _AY, _AZ: Single): PVector3f;
 begin
   X := _AX;
   Y := _AY;
   Z := _AZ;
+
+  Result := @Self;
 end;
 
 function TVector3f.DotProduct(_AVector: TVector3f): Single;
@@ -145,7 +149,7 @@ begin
                  Z * Z);
 end;
 
-function TVector3f.Normalize(): TVector3f;
+function TVector3f.Normalize(): PVector3f;
 var
   AMag: Single;
 begin
@@ -155,7 +159,7 @@ begin
                Z / AMag);
 end;
 
-function TVector3f.Reflect(_ANormal: TVector3f): TVector3f;
+function TVector3f.Reflect(_ANormal: TVector3f): PVector3f;
 var
   AIDotN: Single;
   ANScale2: TVector3f;
@@ -166,7 +170,7 @@ begin
   Result := Self.Subtract(ANScale2.Scale(AIDotN));
 end;
 
-function TVector3f.Refract(_AN: TVector3f; eta_t: Single; eta_i: Single = 1): TVector3f;
+function TVector3f.Refract(_AN: TVector3f; eta_t: Single; eta_i: Single = 1): PVector3f;
 var
   cosi: Single;
   eta: Single;
@@ -189,14 +193,14 @@ begin
     Result := Self.Scale(eta).Add(_AN.Scale(eta * cosi - sqrt(k)));
 end;
 
-function TVector3f.Scale(_AFactor: Single): TVector3f;
+function TVector3f.Scale(_AFactor: Single): PVector3f;
 begin
   Result.Create(X * _AFactor,
                Y * _AFactor,
                Z * _AFactor);
 end;
 
-function TVector3f.Subtract(_AVector: TVector3f): TVector3f;
+function TVector3f.Subtract(_AVector: TVector3f): PVector3f;
 begin
   Result.Create(X - _AVector.X,
                Y - _AVector.Y,
