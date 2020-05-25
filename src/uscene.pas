@@ -34,6 +34,7 @@ begin
   FObjectList := TMeshObjectList.Create;
   FLightList := TLightList.Create;
   FMaterialList := TMaterialList.Create;
+  //FCamera := TCamera.Create;
 end;
 
 destructor TScene.Destroy;

@@ -8,9 +8,10 @@ unit uVectorTypes;
 
 interface
 
+uses
+  Math, System.SysUtils;
+
 type
-
-
   PVector3f = ^TVector3f;
   { TVector3f }
 
@@ -22,7 +23,7 @@ type
     Z: Single;
 
     //this is fastest than a formal constructor
-    function Create(_AX, _AY, _AZ: Single): PVector3f; inline;
+    function Init(_AX, _AY, _AZ: Single): PVector3f; inline;
 
     function Add(_AVector: PVector3f): PVector3f; inline;
     function Subtract(_AVector: PVector3f): PVector3f; inline;
@@ -31,9 +32,10 @@ type
     function Magnitude(): Single; inline;
     function Normalize(): PVector3f; inline;
     function Reflect(_ANormal: PVector3f): PVector3f; inline;
-    function Refract(_AN: PVector3f; eta_t: Single; eta_i: Single = 1): PVector3f; inline;
+    function Refract(_AN: PVector3f; eta_t: Single; eta_i: Single = 1): TVector3f; inline;
 
-    function Clone(): PVector3f; inline;
+    function Clone(): TVector3f; inline;
+    function PrettyString(): string; 
   end;
 
   TVector4f = record
@@ -42,7 +44,7 @@ type
     Y: Single;
     Z: Single;
     W: Single;
-    procedure Create(_AX, _AY, _AZ, _AW: Single);
+    procedure Init(_AX, _AY, _AZ, _AW: Single);
   end;
 
   PColor = ^TColor;
@@ -65,16 +67,13 @@ type
     B: Byte;
 
     //expect a vector with RGB values within 0..1 interval.
-    procedure SetFromVector3f(const _AVectorColor:PVector3f);
+    procedure SetFromVector3f(const _AVectorColor: tVector3f);
   end;
 
-  TArrayVector3f = array of PVector3f;
+  TArrayVector3f = array of tVector3f;
   TArraySingle = array of Single;
 
 implementation
-
-uses
-  Math;
 
 { TColor }
 
@@ -96,7 +95,7 @@ end;
 
 { TiColor }
 
-procedure TByteColor.SetFromVector3f(const _AVectorColor:PVector3f);
+procedure TByteColor.SetFromVector3f(const _AVectorColor:tVector3f);
 var
   AR, AG, AB: Integer;
 
@@ -110,13 +109,18 @@ var
       Result := 0;
   end;
 begin
+//writeln(_AVectorColor.PrettyString);
   AR := Trunc(_AVectorColor.x * 255);
   AG := Trunc(_AVectorColor.y * 255);
   AB := Trunc(_AVectorColor.Z * 255);
 
+  //writeln(FLOATtostr(_AVectorColor.Z * 255) );
+
   R := FixRange(AR);
   G := FixRange(AG);
   B := FixRange(AB);
+
+  //writeln(inttostr(AR) + ', ' +inttostr(AG) + ', '+ inttostr(AB))
 end;
 
 { TVector3f }
@@ -130,18 +134,12 @@ begin
   Result := @Self;
 end;
 
-function TVector3f.Clone: PVector3f;
-var
-  AClone: TVector3f;
+function TVector3f.Clone: TVector3f;
 begin
-  AClone.X := X;
-  AClone.Y := Y;
-  AClone.Z := Z;
-
-  Result := @AClone;
+  Result.Init(X, Y, Z);
 end;
 
-function TVector3f.Create(_AX, _AY, _AZ: Single): PVector3f;
+function TVector3f.Init(_AX, _AY, _AZ: Single): PVector3f;
 begin
   X := _AX;
   Y := _AY;
@@ -180,17 +178,26 @@ end;
 function TVector3f.Reflect(_ANormal: PVector3f): PVector3f;
 var
   AIDotN: Single;
-  ANScale2: PVector3f;
-  AReflection: PVector3f;
+  ANScale2: TVector3f;
+  AReflection: TVector3f;
 begin
-  ANScale2 := _ANormal.Clone.Scale(2);
-  AIDotN := Self.DotProduct(_ANormal);
-  AReflection := Self.Clone().Subtract(ANScale2.Scale(AIDotN));
+  ANScale2 := _ANormal.Clone;
+  ANScale2.Scale(2);
 
-  Result := AReflection;
+//writeln('self ' + self.PrettyString);
+//writeln('normal scaled ' + ANScale2.PrettyString);
+
+  AIDotN := Self.DotProduct(_ANormal);
+
+  //writeln('dot ' + floattostr(AIDotN));
+
+  Self.Subtract(ANScale2.Scale(AIDotN));
+
+//writeln('self ' + self.PrettyString);
+  Result := @Self;
 end;
 
-function TVector3f.Refract(_AN: PVector3f; eta_t: Single; eta_i: Single = 1): PVector3f;
+function TVector3f.Refract(_AN: PVector3f; eta_t: Single; eta_i: Single = 1): TVector3f;
 var
   cosi: Single;
   eta: Single;
@@ -208,9 +215,12 @@ begin
   k := 1 - eta * eta * (1 - cosi * cosi);
 
   if (k < 0) then
-    Result.Create(1, 0, 0)
+    Result.Init(1, 0, 0)
   else
-    Result := Self.Scale(eta).Add(_AN.Scale(eta * cosi - sqrt(k)));
+  begin
+    Result := Self.Clone();
+    Result.Scale(eta).Add(_AN.Scale(eta * cosi - sqrt(k)));
+  end;
 end;
 
 function TVector3f.Scale(_AFactor: Single): PVector3f;
@@ -233,12 +243,17 @@ end;
 
 { TVector4f }
 
-procedure TVector4f.Create(_AX, _AY, _AZ, _AW: Single);
+procedure TVector4f.Init(_AX, _AY, _AZ, _AW: Single);
 begin
   X := _AX;
   Y := _AY;
   Z := _AZ;
   W := _AW;
+end;
+
+function TVector3f.PrettyString: string;
+begin
+  Result := '[' + floattostr(x) + ', ' + floattostr(y) + ', ' + floattostr(z) + ']';  
 end;
 
 end.

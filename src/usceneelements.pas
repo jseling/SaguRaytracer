@@ -18,34 +18,34 @@ type
   TMaterial = class
   public
     Name: string;
-    DiffuseColor: PVector3f;
+    DiffuseColor: TVector3f;
     Albedo: TVector4f;
     SpecularExponent: Single;
     RefractiveIndex: Single;
     constructor Create(const _AName: string);
-    function CalculateDiffuseColorInScene(const _ADiffuseLightIntensity: Single): PVector3f;
-    function CalculateSpecularColorInScene(const _ASpecularLightIntensity: Single): PVector3f;
-    function CalculateReflectColorInScene(const _AReflectColor: PVector3f): PVector3f;
-    function CalculateRefractColorInScene(const _ARefractColor: PVector3f): PVector3f;
+    function CalculateDiffuseColorInScene(const _ADiffuseLightIntensity: Single): TVector3f;
+    function CalculateSpecularColorInScene(const _ASpecularLightIntensity: Single): TVector3f;
+    function CalculateReflectColorInScene(const _AReflectColor: PVector3f): TVector3f;
+    function CalculateRefractColorInScene(const _ARefractColor: PVector3f): TVector3f;
   end;
 
   TMeshObject = class
   public
-    Center: PVector3f;
+    Center: TVector3f;
     Material: TMaterial;
 
-    function RayIntersect(_AOrig, _ADir: PVector3f; out _At0: Single): Boolean; virtual; abstract;
+    function RayIntersect(_AOrig, _ADir: TVector3f; out _At0: Single): Boolean; virtual; abstract;
   end;
 
   TSphere = class(TMeshObject)
   public
     Radius: Single;
-    function RayIntersect(_AOrig, _ADir: PVector3f; out _At0: Single): Boolean; override;
+    function RayIntersect(_AOrig, _ADir: TVector3f; out _At0: Single): Boolean; override;
   end;
 
   TCamera = class
   public
-    Position: PVector3f;
+    Position: TVector3f;
     Direction: PVector3f;
     FOV: Single;
     Width: Integer;
@@ -57,20 +57,27 @@ implementation
 
 { TSphere }
 
-function TSphere.RayIntersect(_AOrig, _ADir: PVector3f; out _At0: Single): Boolean;
+function TSphere.RayIntersect(_AOrig, _ADir: TVector3f; out _At0: Single): Boolean;
 var
-  AL: PVector3f;
+  AL: TVector3f;
   Atca: Single;
   Ad2: Single;
   Athc: Single;
   At1: Single;
 begin
-  AL := Center.Clone().Subtract(_AOrig);
-  Atca := AL.DotProduct(_ADir);
-  Ad2 := AL.DotProduct(AL) - (Atca * Atca);
+
+  //writeln(_AOrig.PrettyString + ' - ' +_ADir.PrettyString);
+
+
+  AL := Center.Clone();
+  AL.Subtract(@_AOrig);
+
+  Atca := AL.DotProduct(@_ADir);
+  Ad2 := AL.DotProduct(@AL) - (Atca * Atca);
 
   if (Ad2 > Radius * Radius) then
   begin
+  //writeln('no intersect');
     Result := False;
     exit;
   end;
@@ -84,42 +91,48 @@ begin
 
   if (_At0 < 0) then
   begin
+    //writeln('no intersect');
     Result := False;
     exit;
   end;
 
+  //writeln('intersect');
   Result := True;
 end;
 
 { TMaterial }
 
-function TMaterial.CalculateDiffuseColorInScene(const _ADiffuseLightIntensity: Single): PVector3f;
+function TMaterial.CalculateDiffuseColorInScene(const _ADiffuseLightIntensity: Single): TVector3f;
 begin
-  Result := Self.DiffuseColor.Clone().Scale(_ADiffuseLightIntensity * Self.Albedo.X)
+  Result := Self.DiffuseColor.Clone();
+  Result.Scale(_ADiffuseLightIntensity * Self.Albedo.X)
 end;
 
-function TMaterial.CalculateReflectColorInScene(const _AReflectColor: PVector3f): PVector3f;
+function TMaterial.CalculateReflectColorInScene(const _AReflectColor: PVector3f): TVector3f;
 begin
-  Result := _AReflectColor.Clone().Scale(Self.Albedo.Z);
+  Result := _AReflectColor.Clone();
+  Result.Scale(Self.Albedo.Z);
 end;
 
-function TMaterial.CalculateRefractColorInScene(const _ARefractColor: PVector3f): PVector3f;
+function TMaterial.CalculateRefractColorInScene(const _ARefractColor: PVector3f): TVector3f;
 begin
-  Result := _ARefractColor.Clone().Scale(Self.Albedo.W);
+  Result := _ARefractColor.Clone();
+  Result.Scale(Self.Albedo.W);
 end;
 
-function TMaterial.CalculateSpecularColorInScene(const _ASpecularLightIntensity: Single): PVector3f;
+function TMaterial.CalculateSpecularColorInScene(const _ASpecularLightIntensity: Single): TVector3f;
 var
   ASpecularFactor: Single;
 begin
   ASpecularFactor := _ASpecularLightIntensity * Self.Albedo.Y;
-  Result.Create(ASpecularFactor, ASpecularFactor, ASpecularFactor);
+
+  Result.Init(ASpecularFactor, ASpecularFactor, ASpecularFactor);
 end;
 
 constructor TMaterial.Create(const _AName: string);
 begin
-  DiffuseColor.Create(0.0, 0.0, 0.0);
-  Albedo.Create(1, 0, 0, 0);
+  DiffuseColor.Init(0.0, 0.0, 0.0);
+  Albedo.Init(1, 0, 0, 0);
   SpecularExponent := 50;
   RefractiveIndex := 1;
 

@@ -10,4 +10,5 @@ backup
 *.identcache
 *.drc
 *.map
+*.stat
 *.pas.~*

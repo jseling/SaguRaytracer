@@ -34,8 +34,10 @@ begin
   //TODO:
   //1 - Memory leaks
 
+  //writeln('create');
   AScene := TSceneLoader.Build('scene.json');
   try
+    //writeln(AScene.Camera.Position.PrettyString);
     AViewer := TViewer.Create(AScene.Camera);
     try
       ////////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,6 @@ begin
   end;
 
   writeln('Done ' + MillisecondsBetween(AStart, AEnd).ToString + ' ms');
-  readln;
+  //readln;
 end.
 
